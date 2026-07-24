@@ -1,0 +1,21 @@
+(() => {
+const box=document.getElementById('lightbox'); if(!box)return;
+const img=document.getElementById('lightbox-image');
+const cap=document.getElementById('lightbox-caption');
+const prev=box.querySelector('.lightbox-prev');
+const next=box.querySelector('.lightbox-next');
+const closes=box.querySelectorAll('[data-lightbox-close]');
+const triggers=[...document.querySelectorAll('.lightbox-trigger')];
+let gallery=[],index=0,last=null;
+const set=()=>{const t=gallery[index];img.src=t.dataset.src;img.alt=t.dataset.alt||'';cap.textContent=t.dataset.alt||'';const show=gallery.length>1;prev.hidden=!show;next.hidden=!show};
+const open=t=>{gallery=triggers.filter(x=>x.dataset.gallery===t.dataset.gallery);index=gallery.indexOf(t);last=t;set();box.classList.add('is-open');box.setAttribute('aria-hidden','false');document.body.classList.add('lightbox-open');box.querySelector('.lightbox-close').focus()};
+const close=()=>{box.classList.remove('is-open');box.setAttribute('aria-hidden','true');document.body.classList.remove('lightbox-open');img.src='';if(last)last.focus()};
+const back=()=>{index=(index-1+gallery.length)%gallery.length;set()};
+const forward=()=>{index=(index+1)%gallery.length;set()};
+triggers.forEach(t=>t.addEventListener('click',()=>open(t)));
+closes.forEach(b=>b.addEventListener('click',close));
+prev.addEventListener('click',back);next.addEventListener('click',forward);
+document.addEventListener('keydown',e=>{if(!box.classList.contains('is-open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')back();if(e.key==='ArrowRight')forward()});
+let x=0;box.addEventListener('touchstart',e=>x=e.changedTouches[0].screenX,{passive:true});
+box.addEventListener('touchend',e=>{const d=e.changedTouches[0].screenX-x;if(Math.abs(d)<50||gallery.length<2)return;d>0?back():forward()},{passive:true});
+})();
